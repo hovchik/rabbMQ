@@ -11,6 +11,8 @@ namespace rabbMQ
         private const string UserName = "guest";
         private const string Password = "guest";
         private const string QueueName = "myQueue";
+        private const string ExchangeName = "Server";
+
         private ConnectionFactory _factory;
         private IModel _model;
         private IConnection _connection;
@@ -32,7 +34,7 @@ namespace rabbMQ
         {
             byte[] mess = Encoding.Default.GetBytes(message);
 
-            _model.BasicPublish(exchange: "",
+            _model.BasicPublish(exchange: ExchangeName,
                 routingKey: QueueName,
                 basicProperties: null,
                 body: mess);

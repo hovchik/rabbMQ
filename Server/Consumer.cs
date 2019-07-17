@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.MessagePatterns;
 
 namespace Server
 {
@@ -11,12 +12,15 @@ namespace Server
         private const string HostName = "localhost";
         private const string UserName = "guest";
         private const string Password = "guest";
-        private const string QueueName = "myQueue";
+        private const string QueueName = "Q1";
 
         //public Action<string> OnReceiveMessage;
         private ConnectionFactory _factory;
         private IModel _model;
         private IConnection _connection;
+        private Subscription _subscription;
+
+        private delegate void ConsumeDelegate();
 
         public Consumer()
         {
@@ -34,11 +38,28 @@ namespace Server
 
         public void Start()
         {
-            var cons = new EventingBasicConsumer(_model);
+            _subscription = new Subscription(_model,QueueName,false);
 
-            _model.BasicConsume(QueueName, false, cons);
+            var consume = new ConsumeDelegate(Poll);
+            consume.Invoke();
 
-            cons.Received += Cons_Received;
+            //var cons = new EventingBasicConsumer(_model);
+
+            //_model.BasicConsume(QueueName, false, cons);
+
+            //cons.Received += Cons_Received;
+        }
+
+        private void Poll()
+        {
+            while (true)
+            {
+                var delivery = _subscription.Next();
+
+                Console.WriteLine(Encoding.Default.GetString(delivery.Body));
+                _subscription.Ack(delivery);
+            }
+
         }
 
         private void Cons_Received(object sender, BasicDeliverEventArgs e)
