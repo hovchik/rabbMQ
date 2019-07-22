@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Models;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.MessagePatterns;
@@ -55,9 +57,12 @@ namespace Server
             while (true)
             {
                 var delivery = _subscription.Next();
-
-                Console.WriteLine(Encoding.Default.GetString(delivery.Body));
-                _subscription.Ack(delivery);
+                if (delivery != null)
+                {
+                    User user = JsonConvert.DeserializeObject<User>(Encoding.Default.GetString(delivery.Body));
+                    Console.WriteLine($"UserID: {user.Id}  UserName: {user.UserName}  Email: {user.Email}");
+                    _subscription.Ack(delivery);
+                }
             }
 
         }
