@@ -26,17 +26,18 @@ namespace rabbMQ
             };
             _connection = _factory.CreateConnection();
             _model = _connection.CreateModel();
-            var property = _model.CreateBasicProperties();
-            property.Persistent = true;
+            
 
         }
         public void Send(string message)
         {
+            var property = _model.CreateBasicProperties();
+            property.Persistent = true;
             byte[] mess = Encoding.Default.GetBytes(message);
 
             _model.BasicPublish(exchange: ExchangeName,
                 routingKey: QueueName,
-                basicProperties: null,
+                basicProperties: property,
                 body: mess);
         }
 

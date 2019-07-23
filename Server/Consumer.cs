@@ -64,7 +64,6 @@ namespace Server
                     _subscription.Ack(delivery);
                 }
             }
-
         }
 
         private void Cons_Received(object sender, BasicDeliverEventArgs e)
